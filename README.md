@@ -4,3 +4,4 @@ Final project for my network programming course
 ```
 pyinstaller --noconsole --onefile -i word.ico ransomeware.py persistence.py shell_client.py
 ```
+<img src="https://imgur.com/a/mZ0HW6H">
